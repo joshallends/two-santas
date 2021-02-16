@@ -24,22 +24,27 @@ df <- debt %>%
       left_join(prez, by = 'year') %>%
       filter(year>1960)
 
+# percent growth
+growth <- df %>%
+  group_by(president, party) %>%
+  summarise(start_year = min(year),
+            pct_increase = round(((max(debtb) - min(debtb))/min(debtb))*100,2)) %>%
+  arrange(start_year)
+
 # visual
-ggplot(data = subset(df), aes(x=year, y=debtb)) +
+ggplot(data = df, aes(x=year, y=debtb)) +
   geom_rect(aes(xmin = year, xmax = dplyr::lead(year), ymin = -0.5, ymax = Inf, fill = party)) +
   scale_fill_manual(values = c("blue", "red")) +
   geom_line(color = "white", size = 1.75) +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   theme_bw() +
-  theme(panel.grid = element_blank(),
-        panel.border = element_blank()) +
+  theme(panel.grid = element_blank()) +
   labs(x="Year", y="National Deficit (billions)",
        fill = "White House")
 
-# percent growth
-growth <- df %>%
-          group_by(president, party) %>%
-          summarise(pct_increase = round(((max(debtb) - min(debtb))/min(debtb))*100,2))
+ggsave("images/deficit.png")
+
+
 
 
